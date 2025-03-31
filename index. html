@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Ghost Hunt</title>
+    <style>
+        body {
+            text-align: center;
+            background-color: black;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        #gameCanvas {
+            background: url('https://i.imgur.com/Qm0RW6F.jpg') no-repeat center;
+            background-size: cover;
+            display: block;
+            margin: auto;
+            border: 3px solid white;
+        }
+        #score {
+            font-size: 24px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Digital Ghost Hunt</h1>
+    <h2>Score: <span id="score">0</span></h2>
+    <canvas id="gameCanvas" width="640" height="360"></canvas>
+
+    <audio id="ghostSound" src="https://www.fesliyanstudios.com/play-mp3/4386" preload="auto"></audio>
+    <audio id="bgMusic" src="https://www.fesliyanstudios.com/play-mp3/4385" loop></audio>
+
+    <script>
+        let canvas = document.getElementById("gameCanvas");
+        let ctx = canvas.getContext("2d");
+
+        let ghost = {
+            x: Math.random() * (canvas.width - 50),
+            y: Math.random() * (canvas.height - 50),
+            size: 50,
+            speed: 2
+        };
+
+        let score = 0;
+        let gameRunning = true;
+        document.getElementById("score").innerText = score;
+
+        let ghostImage = new Image();
+        ghostImage.src = "https://i.imgur.com/UfvxkYe.png"; // Ghost sprite
+
+        function drawGhost() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(ghostImage, ghost.x, ghost.y, ghost.size, ghost.size);
+        }
+
+        function moveGhost() {
+            if (!gameRunning) return;
+            ghost.x += (Math.random() - 0.5) * ghost.speed * 5;
+            ghost.y += (Math.random() - 0.5) * ghost.speed * 5;
+
+            if (ghost.x < 0) ghost.x = 0;
+            if (ghost.y < 0) ghost.y = 0;
+            if (ghost.x > canvas.width - ghost.size) ghost.x = canvas.width - ghost.size;
+            if (ghost.y > canvas.height - ghost.size) ghost.y = canvas.height - ghost.size;
+
+            drawGhost();
+            setTimeout(moveGhost, 800);
+        }
+
+        canvas.addEventListener("click", function(event) {
+            if (!gameRunning) return;
+
+            let clickX = event.clientX - canvas.offsetLeft;
+            let clickY = event.clientY - canvas.offsetTop;
+
+            let distance = Math.sqrt((clickX - ghost.x) ** 2 + (clickY - ghost.y) ** 2);
+            if (distance < ghost.size) {
+                score += 10;
+                document.getElementById("score").innerText = score;
+                ghost.x = Math.random() * (canvas.width - ghost.size);
+                ghost.y = Math.random() * (canvas.height - ghost.size);
+                document.getElementById("ghostSound").play();
+            }
+        });
+
+        document.getElementById("bgMusic").play();
+        drawGhost();
+        moveGhost();
+    </script>
+</body>
+</html>
